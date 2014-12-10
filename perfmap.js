@@ -138,67 +138,88 @@ function getCumulativeOffset(obj, url) {
 }
 
 // give visual feedback asap
-var loading = document.createElement("div");
-loading.id = "perfmap-loading";
-loading.innerHTML = "Creating PerfMap";
-loading.style.cssText = "position:absolute; z-index:6000; left:40%; top:45%; background-color:#000; color:#fff; padding:20px 30px; font-family:\"Helvetica Neue\",sans-serif; font-size:24px; font-weight:800;border:2px solid white;";
-document.body.appendChild(loading);
+window.perfmap = {
+    show: function() {
+        document.getElementById('perfmap').style.display = 'block';
+    },
 
-// get full page load time to calculate heatmap max
-var loaded = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    hide: function() {
+        document.getElementById('perfmap').style.display = 'none';  
+    },
 
-// backend
-var backend = performance.timing.responseEnd - performance.timing.navigationStart;
-var backendLeft = (backend / loaded)*100;
+    toggle: function() {
+        if (document.getElementById('perfmap').style.display == 'block') {
+            this.hide();
+        } else {
+            this.show();
+        }
+    },
 
-// first paint in chrome from https://github.com/addyosmani/timing.js
-var hasFirstPaint = 0;
-if (window.chrome && window.chrome.loadTimes) {
-	var paint = window.chrome.loadTimes().firstPaintTime * 1000;
-	var firstPaint = paint - (window.chrome.loadTimes().startLoadTime*1000);
-	var firstPaintLeft = (firstPaint / loaded)*100;
-	hasFirstPaint = 1;
-}
+    init: function() {
+        var loading = document.createElement("div");
+        loading.id = "perfmap-loading";
+        loading.innerHTML = "Creating PerfMap";
+        loading.style.cssText = "position:absolute; z-index:6000; left:40%; top:45%; background-color:#000; color:#fff; padding:20px 30px; font-family:\"Helvetica Neue\",sans-serif; font-size:24px; font-weight:800;border:2px solid white;";
+        document.body.appendChild(loading);
 
-// remove any exisiting "perfmap" divs on second click
-var elements = document.getElementsByClassName("perfmap");
-while(elements.length > 0){
-    elements[0].parentNode.removeChild(elements[0]);
-}
+        // get full page load time to calculate heatmap max
+        var loaded = performance.timing.loadEventEnd - performance.timing.navigationStart;
 
-// build bottom legend
-var perfmap = document.createElement("div");
-perfmap.id = "perfmap";
-var legend = "<div style='width:16.666666667%; height: 50px; float:left; background-color:#1a9850;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#66bd63;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#a6d96a;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#fdae61;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#f46d43;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#d73027;'></div><div style='position:absolute; z-index:2; right:0px; padding-top:5px; padding-right:10px;height:100%;color:#fff;'>Fully Loaded " + parseInt(loaded) + "ms</div><div id='perfmap-timeline' style='position:absolute; z-index:4; left:-100px; border-left:2px solid white;height:100%;'></div>";
-if(hasFirstPaint == 1){
-	legend += "<div style='position:absolute; z-index:3; left:" + firstPaintLeft + "%; padding-top:5px; border-left:2px solid white;padding-left:5px;height:100%;color:#fff;'>First Paint " + parseInt(firstPaint) + "ms</div></div>";
-}
-perfmap.style.cssText = "position: fixed; width:100%; bottom:0; left:0; z-index:5000; height: 25px; color:#fff; font-family:\"Helvetica Neue\",sans-serif; font-size:14px; font-weight:800; line-height:14px;";
-perfmap.innerHTML = legend;
-document.body.appendChild(perfmap);
+        // backend
+        var backend = performance.timing.responseEnd - performance.timing.navigationStart;
+        var backendLeft = (backend / loaded)*100;
 
-// build heatmap
-findImages();
+        // first paint in chrome from https://github.com/addyosmani/timing.js
+        var hasFirstPaint = 0;
+        if (window.chrome && window.chrome.loadTimes) {
+            var paint = window.chrome.loadTimes().firstPaintTime * 1000;
+            var firstPaint = paint - (window.chrome.loadTimes().startLoadTime*1000);
+            var firstPaintLeft = (firstPaint / loaded)*100;
+            hasFirstPaint = 1;
+        }
 
-// remove loading message
-loading.remove();
+        // remove any exisiting "perfmap" divs on second click
+        var elements = document.getElementsByClassName("perfmap");
+        while(elements.length > 0){
+            elements[0].parentNode.removeChild(elements[0]);
+        }
 
-// mouse events to move timeline around on hover
-var elements = document.getElementsByClassName("perfmap");
-var timeline = document.getElementById('perfmap-timeline');
-for ( var i=0, len = elements.length; i < len; i++ ) {
-	elements[i].onmouseover = function(){
-    	var timelineLeft = document.documentElement.clientWidth * (this.dataset.ms / loaded);
-    	if(this.dataset.body != "1"){
-			this.style.opacity = 1;
-    	}
-    	timeline.style.cssText = "opacity:1; transition: 0.5s ease-in-out; transform: translate("+ parseInt(timelineLeft) + "px,0); position:absolute; z-index:4; border-left:2px solid white; height:100%;";
+        // build bottom legend
+        var perfmap = document.createElement("div");
+        perfmap.id = "perfmap";
+        var legend = "<div style='width:16.666666667%; height: 50px; float:left; background-color:#1a9850;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#66bd63;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#a6d96a;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#fdae61;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#f46d43;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#d73027;'></div><div style='position:absolute; z-index:2; right:0px; padding-top:5px; padding-right:10px;height:100%;color:#fff;'>Fully Loaded " + parseInt(loaded) + "ms</div><div id='perfmap-timeline' style='position:absolute; z-index:4; left:-100px; border-left:2px solid white;height:100%;'></div>";
+        if(hasFirstPaint == 1){
+            legend += "<div style='position:absolute; z-index:3; left:" + firstPaintLeft + "%; padding-top:5px; border-left:2px solid white;padding-left:5px;height:100%;color:#fff;'>First Paint " + parseInt(firstPaint) + "ms</div></div>";
+        }
+        perfmap.style.cssText = "position: fixed; width:100%; bottom:0; left:0; z-index:5000; height: 25px; color:#fff; font-family:\"Helvetica Neue\",sans-serif; font-size:14px; font-weight:800; line-height:14px; display: none;";
+        perfmap.innerHTML = legend;
+        document.body.appendChild(perfmap);
+
+        // build heatmap
+        findImages();
+
+        // remove loading message
+        loading.remove();
+
+        // mouse events to move timeline around on hover
+        var elements = document.getElementsByClassName("perfmap");
+        var timeline = document.getElementById('perfmap-timeline');
+        for ( var i=0, len = elements.length; i < len; i++ ) {
+            elements[i].onmouseover = function(){
+                var timelineLeft = document.documentElement.clientWidth * (this.dataset.ms / loaded);
+                if(this.dataset.body != "1"){
+                    this.style.opacity = 1;
+                }
+                timeline.style.cssText = "opacity:1; transition: 0.5s ease-in-out; transform: translate("+ parseInt(timelineLeft) + "px,0); position:absolute; z-index:4; border-left:2px solid white; height:100%;";
+            }
+            elements[i].onmouseout = function(){        
+                var timelineLeft = document.documentElement.clientWidth * (this.dataset.ms / loaded);
+                if(this.dataset.body != "1"){
+                    this.style.opacity = 0.925;
+                }
+                timeline.style.cssText = "opacity:0; transition: 0.5s ease-in-out; transform: translate("+ parseInt(timelineLeft) + "px,0); position:absolute; z-index:4; border-left:2px solid white; height:100%;";
+            }
+        }
     }
-    elements[i].onmouseout = function(){		
-    	var timelineLeft = document.documentElement.clientWidth * (this.dataset.ms / loaded);
-    	if(this.dataset.body != "1"){
-    		this.style.opacity = 0.925;
-    	}
-    	timeline.style.cssText = "opacity:0; transition: 0.5s ease-in-out; transform: translate("+ parseInt(timelineLeft) + "px,0); position:absolute; z-index:4; border-left:2px solid white; height:100%;";
-    }
 }
+
