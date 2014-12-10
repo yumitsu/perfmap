@@ -194,7 +194,7 @@ window.perfmap = {
         var perfmap = document.createElement("div");
         perfmap.id = "perfmap";
         var legend = "<div style='width:16.666666667%; height: 50px; float:left; background-color:#1a9850;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#66bd63;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#a6d96a;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#fdae61;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#f46d43;'></div><div style='width:16.666666667%; height: 50px; float:left; background-color:#d73027;'></div><div style='position:absolute; z-index:2; right:0px; padding-top:5px; padding-right:10px;height:100%;color:#fff;'>Fully Loaded " + parseInt(this.loaded) + "ms</div><div id='perfmap-timeline' style='position:absolute; z-index:4; left:-100px; border-left:2px solid white;height:100%;'></div>";
-        if(hasFirstPaint == 1){
+        if(this.hasFirstPaint == 1){
             legend += "<div style='position:absolute; z-index:3; left:" + this.firstPaintLeft + "%; padding-top:5px; border-left:2px solid white;padding-left:5px;height:100%;color:#fff;'>First Paint " + parseInt(this.firstPaint) + "ms</div></div>";
         }
         perfmap.style.cssText = "position: fixed; width:100%; bottom:0; left:0; z-index:5000; height: 25px; color:#fff; font-family:\"Helvetica Neue\",sans-serif; font-size:14px; font-weight:800; line-height:14px; display: none;";
