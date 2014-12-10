@@ -152,7 +152,7 @@ window.perfmap = {
                         var height = wh.height;
                         if(width > 10){
                             if(height > 10){
-                                placeMarker(xy, width, height, entry, body, url);
+                                this.placeMarker(xy, width, height, entry, body, url);
                             }
                         }
                     }
