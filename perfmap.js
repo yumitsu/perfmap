@@ -47,18 +47,20 @@ window.perfmap = {
     backend: null,
     backendLeft: null,
     hasFirstPaint: 0,
-
+    showed: false,
 
     show: function() {
+        this.showed = true;
         document.getElementById('perfmap').style.display = 'block';
     },
 
     hide: function() {
+        this.showed = false;
         document.getElementById('perfmap').style.display = 'none';  
     },
 
     toggle: function() {
-        if (document.getElementById('perfmap').style.display == 'block') {
+        if (this.showed) {
             this.hide();
         } else {
             this.show();
