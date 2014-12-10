@@ -169,7 +169,7 @@ window.perfmap = {
         document.body.appendChild(loading);
 
         // get full page load time to calculate heatmap max
-        var loaded = performance.timing.loadEventEnd - performance.timing.navigationStart;
+        this.loaded = performance.timing.loadEventEnd - performance.timing.navigationStart;
 
         // backend
         this.backend = performance.timing.responseEnd - performance.timing.navigationStart;
